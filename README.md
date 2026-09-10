@@ -72,6 +72,20 @@ MONGODB_URI = mongodb+srv://fortknight6901_db_user:wyZX9HgDhz3gbj7o@cluster0.yln
 
 `NEXT_PUBLIC_API_BASE_URL` = backend api url
 
+## Event detection
+
+When a trip ends, the backend runs its points through `services/event-detection.service.ts` and
+saves whatever it finds:
+
+- **Harsh braking** - GPS speed dropping faster than 3 m/s² while above ~11 km/h
+- **Sharp turn** - sideways acceleration over 3.5 m/s² while moving (the braking/accelerating part
+  measured from GPS is taken out first, so a hard stop doesn't also count as a turn)
+- **Over-speeding** - above 60 km/h for at least 2 seconds
+- **Idle** - basically stationary for a minute or more
+
+Back-to-back readings over a threshold count as one event, placed at the worst reading. All the
+numbers live in `config/detection.ts`.
+
 ## API
 
 Everything sits under `/api`. No auth - one implicit driver.

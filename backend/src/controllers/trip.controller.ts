@@ -6,6 +6,11 @@ import { serializeEvent, serializeTrip } from "../views/trip.view";
 import { TripModel, type TripDocument } from "../models/trip.model";
 import { TripEventModel } from "../models/trip-event.model";
 import { TripPointModel } from "../models/trip-point.model";
+import {
+  detectEvents,
+  summarizeEvents,
+  type DetectionPoint,
+} from "../services/event-detection.service";
 
 const TRIP_LIST_LIMIT = 50;
 
@@ -20,6 +25,24 @@ async function loadTrip(id: string): Promise<TripDocument> {
     throw HttpError.notFound(`No trip with id ${id}`);
   }
   return trip;
+}
+
+async function loadDetectionPoints(
+  trip: TripDocument,
+): Promise<DetectionPoint[]> {
+  const points = await TripPointModel.find({ tripId: trip._id })
+    .sort({ timestamp: 1 })
+    .lean();
+
+  return points.map((point) => ({
+    timestamp: point.timestamp,
+    lat: point.lat,
+    lng: point.lng,
+    speed: point.speed ?? null,
+    accelX: point.accelX ?? null,
+    accelY: point.accelY ?? null,
+    accelZ: point.accelZ ?? null,
+  }));
 }
 
 // starts a trip
@@ -65,11 +88,31 @@ export const endTrip: RequestHandler<TripParams> = async (req, res) => {
     throw HttpError.conflict("Trip has already ended");
   }
 
+  const points = await loadDetectionPoints(trip);
+  const detected = detectEvents(points);
+  const summary = summarizeEvents(detected);
+
+  await TripEventModel.deleteMany({ tripId: trip._id });
+  const events = await TripEventModel.insertMany(
+    detected.map((event) => ({ ...event, tripId: trip._id })),
+  );
+
   trip.endTime = new Date();
   trip.status = "completed";
   await trip.save();
 
-  res.json({ trip: serializeTrip(trip) });
+  console.log(
+    `Trip ${trip.id} ended with ${points.length} points:`,
+    Object.entries(summary)
+      .map(([type, count]) => `${type}=${count}`)
+      .join(" "),
+  );
+
+  res.json({
+    trip: serializeTrip(trip),
+    summary,
+    events: events.map(serializeEvent),
+  });
 };
 
 // get all treps
