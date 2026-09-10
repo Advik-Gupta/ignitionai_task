@@ -86,6 +86,13 @@ saves whatever it finds:
 Back-to-back readings over a threshold count as one event, placed at the worst reading. All the
 numbers live in `config/detection.ts`.
 
+## Scoring
+
+Every trip starts at 100 and loses points for each event, more for worse ones. A harsh brake costs
+5 to 10 depending on severity, speeding 4 to 10, a sharp turn 4 to 8, and idling 1 to 3. The score
+can't go below 0. A trip with no readings at all isn't scored, since there's nothing to judge. The
+weights are in `config/scoring.ts`.
+
 ## API
 
 Everything sits under `/api`. No auth - one implicit driver.

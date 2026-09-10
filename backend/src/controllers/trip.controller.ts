@@ -11,6 +11,7 @@ import {
   summarizeEvents,
   type DetectionPoint,
 } from "../services/event-detection.service";
+import { scoreTrip } from "../services/scoring.service";
 
 const TRIP_LIST_LIMIT = 50;
 
@@ -91,6 +92,7 @@ export const endTrip: RequestHandler<TripParams> = async (req, res) => {
   const points = await loadDetectionPoints(trip);
   const detected = detectEvents(points);
   const summary = summarizeEvents(detected);
+  const { score, totalPenalty, penalties } = scoreTrip(detected);
 
   await TripEventModel.deleteMany({ tripId: trip._id });
   const events = await TripEventModel.insertMany(
@@ -99,10 +101,11 @@ export const endTrip: RequestHandler<TripParams> = async (req, res) => {
 
   trip.endTime = new Date();
   trip.status = "completed";
+  trip.score = points.length > 0 ? score : null;
   await trip.save();
 
   console.log(
-    `Trip ${trip.id} ended with ${points.length} points:`,
+    `Trip ${trip.id} ended with ${points.length} points, score ${trip.score ?? "n/a"} (-${totalPenalty}):`,
     Object.entries(summary)
       .map(([type, count]) => `${type}=${count}`)
       .join(" "),
@@ -111,6 +114,7 @@ export const endTrip: RequestHandler<TripParams> = async (req, res) => {
   res.json({
     trip: serializeTrip(trip),
     summary,
+    penalties,
     events: events.map(serializeEvent),
   });
 };
