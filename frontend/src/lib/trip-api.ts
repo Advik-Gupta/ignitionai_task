@@ -15,6 +15,7 @@ export type Trip = {
   durationSeconds: number | null;
   status: TripStatus;
   rawPointCount: number;
+  distanceMeters: number | null;
   score: number | null;
   createdAt: string;
 };
@@ -28,6 +29,16 @@ export type TripEvent = {
   lng: number;
   severity: number;
   rawValue: number;
+};
+
+export type EventTypeTotals = Record<TripEventType, number>;
+
+export type TripDetail = {
+  trip: Trip;
+  summary: EventTypeTotals;
+  penalties: EventTypeTotals;
+  totalPenalty: number;
+  events: TripEvent[];
 };
 
 export type TripPointPayload = {
@@ -69,6 +80,11 @@ export async function endTrip(tripId: string): Promise<Trip> {
   return trip;
 }
 
-export function getTrip(tripId: string) {
-  return apiFetch<{ trip: Trip; events: TripEvent[] }>(`/api/trips/${tripId}`);
+export async function listTrips(): Promise<Trip[]> {
+  const { trips } = await apiFetch<{ trips: Trip[] }>("/api/trips");
+  return trips;
+}
+
+export function getTrip(tripId: string): Promise<TripDetail> {
+  return apiFetch<TripDetail>(`/api/trips/${tripId}`);
 }

@@ -19,6 +19,7 @@ const tripSchema = new Schema(
       default: "active",
     },
     rawPointCount: { type: Number, required: true, default: 0, min: 0 },
+    distanceMeters: { type: Number, default: null, min: 0 },
     score: { type: Number, default: null, min: 0, max: 100 },
   },
   { timestamps: true },

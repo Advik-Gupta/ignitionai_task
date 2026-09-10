@@ -12,6 +12,7 @@ import {
   type DetectionPoint,
 } from "../services/event-detection.service";
 import { scoreTrip } from "../services/scoring.service";
+import { routeDistanceMeters } from "../services/route-distance.service";
 
 const TRIP_LIST_LIMIT = 50;
 
@@ -102,6 +103,7 @@ export const endTrip: RequestHandler<TripParams> = async (req, res) => {
   trip.endTime = new Date();
   trip.status = "completed";
   trip.score = points.length > 0 ? score : null;
+  trip.distanceMeters = points.length > 0 ? routeDistanceMeters(points) : null;
   await trip.save();
 
   console.log(
@@ -115,6 +117,7 @@ export const endTrip: RequestHandler<TripParams> = async (req, res) => {
     trip: serializeTrip(trip),
     summary,
     penalties,
+    totalPenalty,
     events: events.map(serializeEvent),
   });
 };
@@ -133,9 +136,13 @@ export const getTrip: RequestHandler<TripParams> = async (req, res) => {
   const events = await TripEventModel.find({ tripId: trip._id }).sort({
     timestamp: 1,
   });
+  const { penalties, totalPenalty } = scoreTrip(events);
 
   res.json({
     trip: serializeTrip(trip),
+    summary: summarizeEvents(events),
+    penalties,
+    totalPenalty,
     events: events.map(serializeEvent),
   });
 };

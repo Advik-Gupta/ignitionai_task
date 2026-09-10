@@ -219,7 +219,9 @@ export function detectEvents(points: DetectionPoint[]): DetectedEvent[] {
   ].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 }
 
-export function summarizeEvents(events: DetectedEvent[]): EventSummary {
+export function summarizeEvents(
+  events: Array<{ type: TripEventType }>,
+): EventSummary {
   const summary: EventSummary = {
     harsh_braking: 0,
     sharp_turn: 0,

@@ -14,6 +14,7 @@ export function serializeTrip(trip: TripDocument) {
     durationSeconds: durationSeconds(trip.startTime, trip.endTime),
     status: trip.status,
     rawPointCount: trip.rawPointCount,
+    distanceMeters: trip.distanceMeters ?? null,
     score: trip.score,
     createdAt: trip.createdAt.toISOString(),
   };

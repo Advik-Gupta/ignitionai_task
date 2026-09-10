@@ -1,10 +1,13 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
-const NAV_ITEMS = [{ href: '/record', label: 'Record a trip' }];
+const NAV_ITEMS = [
+  { href: "/trips", label: "Trips" },
+  { href: "/record", label: "Record" },
+];
 
 export function AppHeader() {
   const pathname = usePathname();
@@ -18,15 +21,18 @@ export function AppHeader() {
         <nav aria-label="Main">
           <ul className="flex items-center gap-1">
             {NAV_ITEMS.map((item) => {
-              const active = pathname === item.href;
+              const active =
+                pathname === item.href || pathname.startsWith(`${item.href}/`);
               return (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    aria-current={active ? 'page' : undefined}
+                    aria-current={active ? "page" : undefined}
                     className={cn(
-                      'rounded-md px-3 py-2 text-small transition-colors duration-150 ease-standard',
-                      active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
+                      "rounded-md px-3 py-2 text-small transition-colors duration-150 ease-standard",
+                      active
+                        ? "text-foreground"
+                        : "text-muted-foreground hover:text-foreground",
                     )}
                   >
                     {item.label}
