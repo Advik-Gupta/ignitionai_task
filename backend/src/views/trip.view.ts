@@ -9,6 +9,8 @@ function durationSeconds(start: Date, end: Date | null | undefined): number | nu
 export function serializeTrip(trip: TripDocument) {
   return {
     id: trip.id as string,
+    driverName: trip.driverName ?? null,
+    demo: trip.demo,
     startTime: trip.startTime.toISOString(),
     endTime: trip.endTime ? trip.endTime.toISOString() : null,
     durationSeconds: durationSeconds(trip.startTime, trip.endTime),

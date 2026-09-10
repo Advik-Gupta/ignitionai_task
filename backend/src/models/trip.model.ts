@@ -10,6 +10,8 @@ export type TripStatus = (typeof TRIP_STATUSES)[number];
 
 const tripSchema = new Schema(
   {
+    driverName: { type: String, trim: true, maxlength: 40, default: null },
+    demo: { type: Boolean, required: true, default: false },
     startTime: { type: Date, required: true, default: () => new Date() },
     endTime: { type: Date, default: null },
     status: {

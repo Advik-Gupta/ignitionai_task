@@ -10,6 +10,8 @@ export type TripEventType =
 
 export type Trip = {
   id: string;
+  driverName: string | null;
+  demo: boolean;
   startTime: string;
   endTime: string | null;
   durationSeconds: number | null;
@@ -51,9 +53,30 @@ export type TripPointPayload = {
   accelZ: number | null;
 };
 
-export async function startTrip(): Promise<Trip> {
+export type StreakResponse = {
+  driverName: string | null;
+  timeZone: string;
+  minScore: number;
+  streak: {
+    current: number;
+    best: number;
+    lastQualifyingDay: string | null;
+  };
+};
+
+export type LeaderboardEntry = {
+  rank: number;
+  driverName: string;
+  averageScore: number;
+  bestScore: number;
+  tripCount: number;
+  lastTripAt: string;
+};
+
+export async function startTrip(driverName: string | null): Promise<Trip> {
   const { trip } = await apiFetch<{ trip: Trip }>("/api/trips/start", {
     method: "POST",
+    body: JSON.stringify({ driverName }),
   });
   return trip;
 }
@@ -87,4 +110,19 @@ export async function listTrips(): Promise<Trip[]> {
 
 export function getTrip(tripId: string): Promise<TripDetail> {
   return apiFetch<TripDetail>(`/api/trips/${tripId}`);
+}
+
+export function getStreak(driverName: string | null): Promise<StreakResponse> {
+  const params = new URLSearchParams({
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  });
+  if (driverName) params.set("driver", driverName);
+  return apiFetch<StreakResponse>(`/api/streak?${params.toString()}`);
+}
+
+export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
+  const { drivers } = await apiFetch<{ drivers: LeaderboardEntry[] }>(
+    "/api/leaderboard",
+  );
+  return drivers;
 }

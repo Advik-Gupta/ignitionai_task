@@ -93,6 +93,26 @@ Every trip starts at 100 and loses points for each event, more for worse ones. A
 can't go below 0. A trip with no readings at all isn't scored, since there's nothing to judge. The
 weights are in `config/scoring.ts`.
 
+## Streaks, tips and the leaderboard
+
+Put a driver name in before starting a trip and it's saved on the trip. A streak is the number of
+days in a row with at least one trip scoring 70 or more, worked out in your own time zone. The
+leaderboard ranks named drivers by their average score. Each trip page also shows a tip for
+whatever cost the most points on that drive.
+
+## Sample data
+
+No phone handy, or testing on a laptop without sensors? Load some sample trips:
+
+```bash
+npm run seed
+```
+
+It simulates a dozen drives over the last week for three drivers (one careful, one average, one
+aggressive) and runs them through the same detection and scoring as a real trip, so events, scores,
+streaks and the leaderboard all line up. Sample trips are marked as such, and running the command
+again replaces them without touching your real trips.
+
 ## API
 
 Everything sits under `/api`. No auth - one implicit driver.
@@ -104,6 +124,8 @@ POST /trips/:id/points    send a batch of raw GPS + accelerometer samples
 POST /trips/:id/end       closes the trip
 GET  /trips               recent trips
 GET  /trips/:id           one trip with its events
+GET  /streak              days in a row with a trip scoring 70+ (?driver=&timeZone=)
+GET  /leaderboard         named drivers ranked by average score
 ```
 
 A point needs `timestamp`, `lat` and `lng`. `speed` and the three accel axes can be `null` - plenty

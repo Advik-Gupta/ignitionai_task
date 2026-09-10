@@ -2,6 +2,7 @@ import type { RequestHandler } from "express";
 import { isValidObjectId } from "mongoose";
 import { HttpError } from "../utils/http-error";
 import { parsePointBatch } from "../utils/parse-points";
+import { normalizeDriverName } from "../utils/parse-driver-name";
 import { serializeEvent, serializeTrip } from "../views/trip.view";
 import { TripModel, type TripDocument } from "../models/trip.model";
 import { TripEventModel } from "../models/trip-event.model";
@@ -48,8 +49,9 @@ async function loadDetectionPoints(
 }
 
 // starts a trip
-export const startTrip: RequestHandler = async (_req, res) => {
-  const trip = await TripModel.create({ startTime: new Date() });
+export const startTrip: RequestHandler = async (req, res) => {
+  const driverName = normalizeDriverName(req.body?.driverName);
+  const trip = await TripModel.create({ startTime: new Date(), driverName });
   res.status(201).json({ trip: serializeTrip(trip) });
 };
 

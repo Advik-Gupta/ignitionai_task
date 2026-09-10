@@ -293,6 +293,11 @@ async function closeTrip(tripId: string): Promise<Trip> {
   }
 }
 
+export type StartOptions = {
+  existing?: Trip;
+  driverName?: string | null;
+};
+
 export function useTripRecorder() {
   const [phase, setPhase] = useState<RecorderPhase>({ name: "checking" });
   const [stats, setStats] = useState<LiveStats>(INITIAL_STATS);
@@ -345,7 +350,7 @@ export function useTripRecorder() {
     };
   }, []);
 
-  const start = useCallback((existing?: Trip) => {
+  const start = useCallback(({ existing, driverName = null }: StartOptions = {}) => {
     const motionPermission = requestMotionPermission();
     const session = createSession();
     sessionRef.current = session;
@@ -364,7 +369,7 @@ export function useTripRecorder() {
           return;
         }
 
-        const trip = existing ?? (await startTrip());
+        const trip = existing ?? (await startTrip(driverName));
         if (sessionRef.current !== session) {
           stopSensors(session);
           return;

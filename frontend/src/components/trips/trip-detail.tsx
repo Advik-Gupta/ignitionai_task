@@ -27,7 +27,13 @@ import {
   pluralize,
 } from "@/lib/format";
 import { scoreBand } from "@/lib/score";
-import { getTrip, type Trip, type TripDetail } from "@/lib/trip-api";
+import { CLEAN_TRIP_TIP, DRIVING_TIPS, topOffender } from "@/lib/tips";
+import {
+  getTrip,
+  type EventTypeTotals,
+  type Trip,
+  type TripDetail,
+} from "@/lib/trip-api";
 import { PenaltyChart } from "./penalty-chart";
 import { ScoreBadge } from "./trip-score";
 
@@ -104,7 +110,9 @@ function TripReport({ detail }: { detail: TripDetail }) {
     <>
       <header>
         <p className="text-label uppercase text-muted-foreground">
-          {timeRange}
+          {[trip.driverName, timeRange, trip.demo ? "Sample trip" : null]
+            .filter(Boolean)
+            .join(" · ")}
         </p>
         <h1 className="mt-2 text-heading font-semibold">
           {formatLongDate(trip.startTime)}
@@ -117,6 +125,9 @@ function TripReport({ detail }: { detail: TripDetail }) {
             Summary
           </h2>
           <ScoreSummary detail={detail} />
+          {trip.score !== null && (
+            <DrivingTipBlock penalties={detail.penalties} />
+          )}
           <StatusList>
             <StatusRow
               label="Duration"
@@ -196,6 +207,26 @@ function ScoreSummary({ detail }: { detail: TripDetail }) {
         </span>
       </div>
     </div>
+  );
+}
+
+function DrivingTipBlock({ penalties }: { penalties: EventTypeTotals }) {
+  const offender = topOffender(penalties);
+  const tip = offender ? DRIVING_TIPS[offender] : CLEAN_TRIP_TIP;
+
+  return (
+    <section
+      aria-labelledby="tip-heading"
+      className="rounded-lg border bg-card p-4"
+    >
+      <p className="text-label uppercase text-muted-foreground">
+        {offender ? `Biggest cost: ${EVENT_LABELS[offender]}` : "What to work on"}
+      </p>
+      <h2 id="tip-heading" className="mt-2 text-title font-semibold">
+        {tip.title}
+      </h2>
+      <p className="mt-1 text-small text-foreground-secondary">{tip.body}</p>
+    </section>
   );
 }
 

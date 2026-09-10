@@ -22,6 +22,7 @@ import {
   pluralize,
 } from "@/lib/format";
 import { listTrips, type Trip } from "@/lib/trip-api";
+import { StreakSummary } from "./streak-summary";
 import { TripScore } from "./trip-score";
 
 function durationLabel(trip: Trip): string {
@@ -32,7 +33,9 @@ function durationLabel(trip: Trip): string {
 }
 
 function distanceLabel(trip: Trip): string {
-  return trip.distanceMeters === null ? "-" : formatDistance(trip.distanceMeters);
+  return trip.distanceMeters === null
+    ? "-"
+    : formatDistance(trip.distanceMeters);
 }
 
 function overviewLine(trips: Trip[]): string {
@@ -95,10 +98,11 @@ export function TripList() {
         {state.status === "ready" && state.data.length === 0 && <EmptyTrips />}
 
         {state.status === "ready" && state.data.length > 0 && (
-          <>
+          <div className="flex flex-col gap-6">
+            <StreakSummary />
             <TripTable trips={state.data} />
             <TripRows trips={state.data} />
-          </>
+          </div>
         )}
       </div>
     </div>
@@ -112,6 +116,7 @@ function TripTable({ trips }: { trips: Trip[] }) {
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             <TableHead className="px-4">Date</TableHead>
+            <TableHead>Driver</TableHead>
             <TableHead>Duration</TableHead>
             <TableHead>Distance</TableHead>
             <TableHead className="px-4 text-right">Score</TableHead>
@@ -130,6 +135,20 @@ function TripTable({ trips }: { trips: Trip[] }) {
                 <span className="ml-2 text-muted-foreground">
                   {formatClockTime(trip.startTime)}
                 </span>
+                {trip.demo && (
+                  <span className="ml-2 text-caption text-muted-foreground">
+                    Sample
+                  </span>
+                )}
+              </TableCell>
+              <TableCell
+                className={
+                  trip.driverName
+                    ? "text-foreground-secondary"
+                    : "text-muted-foreground"
+                }
+              >
+                {trip.driverName ?? "No name"}
               </TableCell>
               <TableCell className="tabular-nums text-foreground-secondary">
                 {durationLabel(trip)}
@@ -162,8 +181,15 @@ function TripRows({ trips }: { trips: Trip[] }) {
                 {formatShortDate(trip.startTime)},{" "}
                 {formatClockTime(trip.startTime)}
               </p>
-              <p className="text-caption text-muted-foreground">
-                {durationLabel(trip)} · {distanceLabel(trip)}
+              <p className="truncate text-caption text-muted-foreground">
+                {[
+                  trip.driverName,
+                  durationLabel(trip),
+                  distanceLabel(trip),
+                  trip.demo ? "Sample" : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
               </p>
             </div>
             <TripScore trip={trip} />
@@ -180,7 +206,9 @@ function EmptyTrips() {
       <h2 className="text-section font-semibold">No trips yet</h2>
       <p className="mx-auto mt-2 max-w-sm text-body text-foreground-secondary">
         Record a drive from your phone. When you end it, it shows up here with
-        its score.
+        its score. To look around first, run{" "}
+        <code className="font-mono text-small text-foreground">npm run seed</code>{" "}
+        to load sample trips.
       </p>
       <Button asChild className="mt-6 h-11 w-full sm:h-9 sm:w-auto sm:px-5">
         <Link href="/record">Record a trip</Link>
@@ -197,7 +225,10 @@ function TripListSkeleton() {
       aria-label="Loading trips"
     >
       {Array.from({ length: 5 }, (_, index) => (
-        <div key={index} className="flex items-center justify-between px-4 py-4">
+        <div
+          key={index}
+          className="flex items-center justify-between px-4 py-4"
+        >
           <div className="flex flex-col gap-2">
             <Skeleton className="h-4 w-36" />
             <Skeleton className="h-3 w-24" />
