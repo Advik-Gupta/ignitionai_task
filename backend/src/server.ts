@@ -1,6 +1,6 @@
 import { env } from './config/env';
 import { createApp } from './app';
-import { connectToDatabase } from './db/connection';
+import { connectToDatabase } from './config/database';
 
 async function start() {
   await connectToDatabase(env.mongoUri);
