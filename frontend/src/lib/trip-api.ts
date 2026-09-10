@@ -64,6 +64,12 @@ export type StreakResponse = {
   };
 };
 
+export type TripRoute = {
+  tripId: string;
+  pointCount: number;
+  path: Array<[number, number]>;
+};
+
 export type LeaderboardEntry = {
   rank: number;
   driverName: string;
@@ -125,4 +131,8 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
     "/api/leaderboard",
   );
   return drivers;
+}
+
+export function getTripRoute(tripId: string): Promise<TripRoute> {
+  return apiFetch<TripRoute>(`/api/trips/${tripId}/route`);
 }

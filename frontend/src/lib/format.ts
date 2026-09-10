@@ -36,6 +36,14 @@ export function formatClockTime(iso: string): string {
   });
 }
 
+export function formatClockTimeWithSeconds(iso: string): string {
+  return new Date(iso).toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+}
+
 export function formatDateTime(iso: string): string {
   return new Date(iso).toLocaleString([], {
     dateStyle: "medium",

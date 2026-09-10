@@ -35,6 +35,7 @@ import {
   type TripDetail,
 } from "@/lib/trip-api";
 import { PenaltyChart } from "./penalty-chart";
+import { RouteSection } from "./route-section";
 import { ScoreBadge } from "./trip-score";
 
 function formatPointsLost(value: number): string {
@@ -155,6 +156,8 @@ function TripReport({ detail }: { detail: TripDetail }) {
 
         {trip.score !== null && <Breakdown detail={detail} />}
       </div>
+
+      <RouteSection tripId={trip.id} events={detail.events} />
     </>
   );
 }

@@ -125,6 +125,7 @@ POST /trips/:id/end       closes the trip
 GET  /trips               recent trips
 GET  /trips/:id           one trip with its events
 GET  /streak              days in a row with a trip scoring 70+ (?driver=&timeZone=)
+GET  /trips/:id/route     GPS path for the map, thinned to 2,000 points
 GET  /leaderboard         named drivers ranked by average score
 ```
 

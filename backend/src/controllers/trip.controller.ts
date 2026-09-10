@@ -4,6 +4,7 @@ import { HttpError } from "../utils/http-error";
 import { parsePointBatch } from "../utils/parse-points";
 import { normalizeDriverName } from "../utils/parse-driver-name";
 import { serializeEvent, serializeTrip } from "../views/trip.view";
+import { serializeRoute } from "../views/route.view";
 import { TripModel, type TripDocument } from "../models/trip.model";
 import { TripEventModel } from "../models/trip-event.model";
 import { TripPointModel } from "../models/trip-point.model";
@@ -16,6 +17,7 @@ import { scoreTrip } from "../services/scoring.service";
 import { routeDistanceMeters } from "../services/route-distance.service";
 
 const TRIP_LIST_LIMIT = 50;
+const MAX_ROUTE_POINTS = 2000;
 
 type TripParams = { id: string };
 
@@ -146,5 +148,19 @@ export const getTrip: RequestHandler<TripParams> = async (req, res) => {
     penalties,
     totalPenalty,
     events: events.map(serializeEvent),
+  });
+};
+
+export const getTripRoute: RequestHandler<TripParams> = async (req, res) => {
+  const trip = await loadTrip(req.params.id);
+  const points = await TripPointModel.find({ tripId: trip._id })
+    .sort({ timestamp: 1 })
+    .select({ lat: 1, lng: 1, _id: 0 })
+    .lean();
+
+  res.json({
+    tripId: trip.id,
+    pointCount: points.length,
+    path: serializeRoute(points, MAX_ROUTE_POINTS),
   });
 };
