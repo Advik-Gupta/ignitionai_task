@@ -1,0 +1,170 @@
+'use client';
+
+import { TriangleAlert } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import type { RecorderPhase } from '@/hooks/use-trip-recorder';
+import { formatDateTime, pluralize } from '@/lib/format';
+import type { SensorSupport } from '@/lib/sensors';
+import type { Trip } from '@/lib/trip-api';
+import { StatusList, StatusRow } from './status-list';
+
+type StartPanelProps = {
+  phase: Extract<RecorderPhase, { name: 'idle' | 'interrupted' | 'starting' | 'ending' }>;
+  support: SensorSupport;
+  onStart: (existing?: Trip) => void;
+  onEnd: (trip: Trip) => void;
+};
+
+export function StartPanel({ phase, support, onStart, onEnd }: StartPanelProps) {
+  const blocked = !support.secureContext || !support.geolocation;
+  const starting = phase.name === 'starting';
+  const unfinished = phase.name === 'interrupted' || phase.name === 'ending' ? phase : null;
+
+  return (
+    <div className="mx-auto flex max-w-reading flex-col gap-6 px-5 py-8 sm:px-8 sm:py-12">
+      <div>
+        <h1 className="text-heading font-semibold">Record a trip</h1>
+        <p className="mt-2 text-body text-foreground-secondary">
+          Mount your phone before you set off and leave this page open with the screen on. Position and
+          motion are read once a second and uploaded every few seconds, so closing the tab only loses the
+          last few seconds of the drive.
+        </p>
+      </div>
+
+      {!support.secureContext && (
+        <Alert variant="destructive">
+          <TriangleAlert />
+          <AlertTitle>This page isn&rsquo;t on HTTPS</AlertTitle>
+          <AlertDescription>
+            Browsers only share location and motion sensors with pages served over HTTPS or from localhost.
+            Open the app from its https:// address to record a trip.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {support.secureContext && !support.geolocation && (
+        <Alert variant="destructive">
+          <TriangleAlert />
+          <AlertTitle>This browser can&rsquo;t read your location</AlertTitle>
+          <AlertDescription>
+            A trip is built from GPS positions, so recording isn&rsquo;t possible here. Try a current version
+            of Chrome or Safari on your phone.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {phase.name === 'idle' && phase.error && (
+        <Alert variant="destructive">
+          <TriangleAlert />
+          <AlertTitle>Recording didn&rsquo;t start</AlertTitle>
+          <AlertDescription>{phase.error}</AlertDescription>
+        </Alert>
+      )}
+
+      {unfinished && (
+        <UnfinishedTrip
+          trip={unfinished.trip}
+          ending={unfinished.name === 'ending' && !unfinished.error}
+          error={unfinished.error}
+          canResume={!blocked}
+          onResume={() => onStart(unfinished.trip)}
+          onEnd={() => onEnd(unfinished.trip)}
+        />
+      )}
+
+      <section aria-labelledby="device-heading">
+        <h2 id="device-heading" className="mb-3 text-label uppercase text-muted-foreground">
+          This device
+        </h2>
+        <StatusList>
+          <StatusRow
+            label="Location"
+            value={support.geolocation ? 'Available' : 'Not available'}
+            tone={support.geolocation ? 'good' : 'poor'}
+            detail={support.geolocation ? 'Asks for permission when you start' : undefined}
+          />
+          <StatusRow
+            label="Motion sensor"
+            value={support.motion ? 'Available' : 'Not available'}
+            tone={support.motion ? 'good' : 'caution'}
+            detail={
+              !support.motion
+                ? "Sharp turns won't be detected"
+                : support.motionNeedsPermission
+                  ? 'Asks for permission when you start'
+                  : 'Confirmed once readings arrive'
+            }
+          />
+          <StatusRow
+            label="Keep screen on"
+            value={support.wakeLock ? 'Supported' : 'Not supported'}
+            tone={support.wakeLock ? 'good' : 'caution'}
+            detail={support.wakeLock ? undefined : 'Stop the screen locking yourself'}
+          />
+          <StatusRow
+            label="Secure connection"
+            value={support.secureContext ? 'Yes' : 'No'}
+            tone={support.secureContext ? 'good' : 'poor'}
+          />
+        </StatusList>
+      </section>
+
+      {!unfinished && (
+        <div className="flex flex-col gap-2">
+          <Button
+            size="lg"
+            className="h-11 w-full text-title"
+            disabled={blocked || starting}
+            onClick={() => onStart()}
+          >
+            {starting ? 'Waiting for GPS…' : 'Start trip'}
+          </Button>
+          {starting && (
+            <p className="text-caption text-muted-foreground" aria-live="polite">
+              Allow location access if your browser asks. The first fix can take up to 30 seconds.
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+type UnfinishedTripProps = {
+  trip: Trip;
+  ending: boolean;
+  error: string | null;
+  canResume: boolean;
+  onResume: () => void;
+  onEnd: () => void;
+};
+
+function UnfinishedTrip({ trip, ending, error, canResume, onResume, onEnd }: UnfinishedTripProps) {
+  return (
+    <section className="rounded-lg border bg-card p-4" aria-labelledby="unfinished-heading">
+      <h2 id="unfinished-heading" className="text-title font-semibold">
+        A trip is still open
+      </h2>
+      <p className="mt-1 text-small text-foreground-secondary">
+        Started {formatDateTime(trip.startTime)} with {pluralize(trip.rawPointCount, 'reading')} saved. The
+        page was closed before it was ended. Resume to keep adding to it, or end it now.
+      </p>
+
+      {error && (
+        <p className="mt-3 text-small text-poor" role="alert">
+          {error}
+        </p>
+      )}
+
+      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+        <Button className="h-11 sm:h-9" disabled={!canResume || ending} onClick={onResume}>
+          Resume recording
+        </Button>
+        <Button variant="outline" className="h-11 sm:h-9" disabled={ending} onClick={onEnd}>
+          {ending ? 'Ending trip…' : 'End trip'}
+        </Button>
+      </div>
+    </section>
+  );
+}

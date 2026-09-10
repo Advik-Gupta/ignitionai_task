@@ -1,42 +1,81 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-/*
-  Design tokens. Every colour, size, radius and duration used anywhere in the
-  app resolves to one of these. Dark is the primary surface; the light values
-  under `prefers-color-scheme: light` are an adaptation, not the source of truth.
-*/
-@theme {
-  /* Elevation ladder - depth comes from lightness steps, not shadows. */
-  --color-base: #121110;
-  --color-surface: #1a1817;
-  --color-raised: #221f1d;
-  --color-overlay: #2b2725;
+@custom-variant dark (&:is(.dark *));
 
-  --color-line: #2e2a27;
-  --color-line-strong: #3f3a35;
+:root {
+  --background: #121110;
+  --foreground: #f2ede6;
+  --foreground-secondary: #b4aba1;
+  --muted-foreground: #948a80;
 
-  --color-ink: #f2ede6;
-  --color-ink-secondary: #b4aba1;
-  --color-ink-muted: #877e75;
+  --card: #1a1817;
+  --card-foreground: #f2ede6;
+  --muted: #221f1d;
+  --secondary: #262220;
+  --secondary-foreground: #f2ede6;
+  --accent: #2b2725;
+  --accent-foreground: #f2ede6;
+  --popover: #2b2725;
+  --popover-foreground: #f2ede6;
 
-  /* Single accent: instrument teal. Primary actions and active state only. */
-  --color-accent: #43a89c;
-  --color-accent-strong: #55bdb0;
-  --color-accent-muted: #1e3b38;
+  --border: #2e2a27;
+  --input: #3f3a35;
 
-  /* Semantic - meaning only, never decoration. */
-  --color-good: #7fae61;
-  --color-caution: #d5a13f;
-  --color-poor: #d1614c;
+  --primary: #43a89c;
+  --primary-foreground: #0d1716;
+  --ring: #43a89c;
+
+  --destructive: #d1614c;
+  --good: #7fae61;
+  --caution: #d5a13f;
+  --poor: #d1614c;
+
+  --radius: 0.5rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --color-good: var(--good);
+  --color-caution: var(--caution);
+  --color-poor: var(--poor);
+
+  /* 4 / 6 / 8 / 12 */
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.5);
 
   --font-sans:
     var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading:
+    var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
 
-  /* Type scale - nothing outside this list. */
-  --text-display: 2.5rem;
-  --text-display--line-height: 1.05;
-  --text-display--letter-spacing: -0.02em;
+@theme {
+  --text-display: 3rem;
+  --text-display--line-height: 1;
+  --text-display--letter-spacing: -0.03em;
   --text-heading: 1.75rem;
   --text-heading--line-height: 1.15;
   --text-heading--letter-spacing: -0.015em;
@@ -47,17 +86,13 @@
   --text-title--line-height: 1.4;
   --text-body: 0.875rem;
   --text-body--line-height: 1.6;
-  --text-secondary: 0.8125rem;
-  --text-secondary--line-height: 1.55;
+  --text-small: 0.8125rem;
+  --text-small--line-height: 1.55;
   --text-caption: 0.75rem;
   --text-caption--line-height: 1.5;
   --text-label: 0.6875rem;
   --text-label--line-height: 1.4;
   --text-label--letter-spacing: 0.08em;
-
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
 
   --container-page: 68rem;
   --container-reading: 40rem;
@@ -66,26 +101,30 @@
 }
 
 @layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
   html {
     color-scheme: dark;
   }
 
   body {
-    background-color: var(--color-base);
-    color: var(--color-ink);
-    font-family: var(--font-sans);
-    font-size: var(--text-body);
-    line-height: var(--text-body--line-height);
-    -webkit-font-smoothing: antialiased;
+    @apply bg-background font-sans text-body text-foreground antialiased;
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
 
   ::selection {
-    background-color: var(--color-accent-muted);
-    color: var(--color-ink);
+    background-color: color-mix(in oklch, var(--primary) 35%, transparent);
+    color: var(--foreground);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
   }
 }

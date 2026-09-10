@@ -8,12 +8,22 @@ turns all of that into a score out of 100 with a map replay of the route.
 
 ```
 backend/    Express + TypeScript, MongoDB via Mongoose
-frontend/   Next.js (App Router, TypeScript, Tailwind)
+frontend/   Next.js (App Router, TypeScript, Tailwind, shadcn/ui)
 ```
 
 The backend is a plain MVC split - `models/` for the Mongoose schemas, `controllers/` for the logic,
 `routes/` for the URL bindings, `views/` for shaping the JSON that goes back out. `config/`,
 `middleware/` and `utils/` are what you'd expect.
+
+The frontend uses [shadcn/ui](https://ui.shadcn.com) on the Radix base for buttons, alerts, dialogs
+and skeletons. The components live in `frontend/src/components/ui` as regular source files, and they
+pick up the app's colours from the CSS variables in `globals.css`, so there's one palette for
+everything. To pull in another one:
+
+```bash
+cd frontend
+npx shadcn@latest add <component>
+```
 
 ## Running it
 
@@ -31,6 +41,20 @@ page will tell you whether it can reach the API and whether Mongo is connected. 
 `MONGODB_URI` first - that's usually it.
 
 Each app also runs on its own with `npm run dev` from inside its folder, if you want the logs separate.
+
+### Recording on a phone
+
+Browsers only hand out location and motion sensors on HTTPS pages (localhost is the one exception),
+so `http://192.168.x.x:3000` from your phone won't work. The quickest fix is a tunnel for each app:
+
+```bash
+cloudflared tunnel --url http://localhost:4000   # note the https://...trycloudflare.com URL
+cloudflared tunnel --url http://localhost:3000
+```
+
+Put the API tunnel URL in `frontend/.env.local` as `NEXT_PUBLIC_API_BASE_URL`, add the web tunnel URL
+to `CORS_ORIGIN` in `backend/.env`, restart `npm run dev`, and open the web tunnel URL on your phone.
+Keep the screen on while you drive. If the phone locks, the browser stops handing out GPS.
 
 ## Environment variables
 

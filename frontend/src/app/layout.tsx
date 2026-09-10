@@ -1,32 +1,42 @@
-import type { Metadata } from 'next';
-import { Instrument_Sans, JetBrains_Mono } from 'next/font/google';
-import './globals.css';
+import type { Metadata, Viewport } from "next";
+import { Instrument_Sans, JetBrains_Mono } from "next/font/google";
+import { cn } from "@/lib/utils";
+import "./globals.css";
 
 const instrumentSans = Instrument_Sans({
-  subsets: ['latin'],
-  variable: '--font-instrument-sans',
-  display: 'swap',
+  subsets: ["latin"],
+  variable: "--font-instrument-sans",
+  display: "swap",
 });
 
 const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-jetbrains-mono',
-  display: 'swap',
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: 'Driver Scorecard',
+  title: "Driver Scorecard",
   description:
-    'Records a drive with your phone GPS and accelerometer, then scores it on braking, cornering, speed and idling.',
+    "Records a drive with your phone GPS and accelerometer, then scores it on braking, cornering, speed and idling.",
 };
 
-export const viewport = {
-  themeColor: '#121110',
+export const viewport: Viewport = {
+  themeColor: "#121110",
+  width: "device-width",
+  initialScale: 1,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" className={`${instrumentSans.variable} ${jetbrainsMono.variable}`}>
+    <html
+      lang="en"
+      className={cn("dark", instrumentSans.variable, jetbrainsMono.variable)}
+    >
       <body className="min-h-dvh">{children}</body>
     </html>
   );
