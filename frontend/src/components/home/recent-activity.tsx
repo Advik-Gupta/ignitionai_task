@@ -5,6 +5,7 @@ import { TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SeedSampleDataButton } from "@/components/trips/seed-sample-data-button";
 import { StreakSummary } from "@/components/trips/streak-summary";
 import { TripRows } from "@/components/trips/trip-rows";
 import { useApiResource } from "@/hooks/use-api-resource";
@@ -80,6 +81,18 @@ export function RecentActivity() {
             </li>
           ))}
         </ol>
+        <div className="mt-8 flex flex-col gap-3 border-t pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-small text-foreground-secondary">
+            No trips yet. Load a week of simulated drives to see scores,
+            streaks and the leaderboard straight away.
+          </p>
+          <SeedSampleDataButton
+            onSeeded={reload}
+            confirmFirst={false}
+            label="Load sample trips"
+            buttonClassName="h-11 w-full sm:h-9 sm:w-auto sm:px-5"
+          />
+        </div>
       </section>
     );
   }

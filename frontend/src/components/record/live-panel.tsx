@@ -187,7 +187,6 @@ export function LivePanel({ phase, stats, onEnd }: LivePanelProps) {
         </StatusList>
       </section>
 
-      {/* Pinned to the bottom on phones so it's reachable with a thumb. */}
       <div className="fixed inset-x-0 bottom-0 border-t bg-background px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:static sm:border-0 sm:bg-transparent sm:p-0">
         <div className="mx-auto max-w-reading">
           {recording ? (
@@ -219,9 +218,9 @@ function Readout({
   note?: string;
 }) {
   return (
-    <div className="px-4 py-5">
+    <div className="min-w-0 px-3 py-4 min-[400px]:px-4 min-[400px]:py-5">
       <p className="text-label uppercase text-muted-foreground">{label}</p>
-      <p className="mt-2 font-mono text-heading tabular-nums sm:text-display">
+      <p className="mt-2 font-mono text-section tabular-nums min-[400px]:text-heading sm:text-display">
         {value}
         {unit && (
           <span className="ml-1.5 font-sans text-small text-muted-foreground">

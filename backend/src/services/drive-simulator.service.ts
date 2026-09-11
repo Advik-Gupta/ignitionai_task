@@ -1,4 +1,4 @@
-import type { DetectionPoint } from "../services/event-detection.service";
+import type { DetectionPoint } from "./event-detection.service";
 
 export type DrivingStyle = "careful" | "average" | "aggressive";
 

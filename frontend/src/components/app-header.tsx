@@ -15,7 +15,7 @@ export function AppHeader() {
 
   return (
     <header className="border-b">
-      <div className="mx-auto flex h-14 max-w-page items-center justify-between gap-4 px-5 sm:px-8">
+      <div className="mx-auto flex h-14 max-w-page items-center justify-between gap-2 px-5 sm:gap-4 sm:px-8">
         <Link href="/" className="text-title font-semibold tracking-tight">
           <span className="sm:hidden">Scorecard</span>
           <span className="hidden sm:inline">Driver Scorecard</span>
@@ -31,7 +31,7 @@ export function AppHeader() {
                     href={item.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "rounded-md px-2 py-3 text-small transition-colors duration-150 ease-standard sm:px-3 sm:py-2",
+                      "rounded-md px-1.5 py-3 text-small transition-colors duration-150 ease-standard min-[375px]:px-2 sm:px-3 sm:py-2",
                       active
                         ? "text-foreground"
                         : "text-muted-foreground hover:text-foreground",

@@ -72,8 +72,6 @@ export const ingestPoints: RequestHandler<TripParams> = async (req, res) => {
     points.map((point) => ({ ...point, tripId: trip._id })),
   );
 
-  // $inc rather than save() so overlapping batches from a flaky connection
-  // cannot clobber each other's count.
   const updated = await TripModel.findByIdAndUpdate(
     trip._id,
     { $inc: { rawPointCount: points.length } },

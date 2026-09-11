@@ -70,6 +70,17 @@ export type TripRoute = {
   path: Array<[number, number]>;
 };
 
+export type SeedResult = {
+  removed: number;
+  inserted: number;
+  trips: Array<{
+    id: string;
+    driverName: string;
+    startTime: string;
+    score: number | null;
+  }>;
+};
+
 export type LeaderboardEntry = {
   rank: number;
   driverName: string;
@@ -135,4 +146,8 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
 
 export function getTripRoute(tripId: string): Promise<TripRoute> {
   return apiFetch<TripRoute>(`/api/trips/${tripId}/route`);
+}
+
+export function seedSampleData(): Promise<SeedResult> {
+  return apiFetch<SeedResult>("/api/seed", { method: "POST" });
 }

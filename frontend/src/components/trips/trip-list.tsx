@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -16,6 +17,7 @@ import {
 import { useApiResource } from "@/hooks/use-api-resource";
 import { formatClockTime, formatShortDate, pluralize } from "@/lib/format";
 import { listTrips, type Trip } from "@/lib/trip-api";
+import { SeedSampleDataButton } from "./seed-sample-data-button";
 import { StreakSummary } from "./streak-summary";
 import { TripRows, distanceLabel, durationLabel } from "./trip-rows";
 import { TripScore } from "./trip-score";
@@ -34,10 +36,16 @@ function overviewLine(trips: Trip[]): string {
 
 export function TripList() {
   const { state, reload } = useApiResource(listTrips);
+  const [refreshCount, setRefreshCount] = useState(0);
+
+  const refresh = () => {
+    reload();
+    setRefreshCount((count) => count + 1);
+  };
 
   return (
     <div className="mx-auto max-w-page px-5 py-8 sm:px-8 sm:py-12">
-      <div className="flex items-end justify-between gap-4">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-heading font-semibold">Trips</h1>
           <p className="mt-1 text-small text-muted-foreground">
@@ -46,9 +54,16 @@ export function TripList() {
               : "Your recorded drives, newest first"}
           </p>
         </div>
-        <Button asChild variant="outline" className="hidden sm:inline-flex">
-          <Link href="/record">Start a trip</Link>
-        </Button>
+        <div className="flex w-full items-start gap-2 sm:w-auto">
+          <SeedSampleDataButton
+            onSeeded={refresh}
+            className="flex-1 sm:flex-none sm:items-end"
+            buttonClassName="h-11 sm:h-9"
+          />
+          <Button asChild className="hidden sm:inline-flex">
+            <Link href="/record">Start a trip</Link>
+          </Button>
+        </div>
       </div>
 
       <div className="mt-8">
@@ -76,11 +91,13 @@ export function TripList() {
           </Alert>
         )}
 
-        {state.status === "ready" && state.data.length === 0 && <EmptyTrips />}
+        {state.status === "ready" && state.data.length === 0 && (
+          <EmptyTrips onSeeded={refresh} />
+        )}
 
         {state.status === "ready" && state.data.length > 0 && (
           <div className="flex flex-col gap-6">
-            <StreakSummary />
+            <StreakSummary key={refreshCount} />
             <TripTable trips={state.data} />
             <TripRows trips={state.data} className="md:hidden" />
           </div>
@@ -148,19 +165,25 @@ function TripTable({ trips }: { trips: Trip[] }) {
   );
 }
 
-function EmptyTrips() {
+function EmptyTrips({ onSeeded }: { onSeeded: () => void }) {
   return (
     <section className="rounded-lg border bg-card px-5 py-10 text-center sm:px-8">
       <h2 className="text-section font-semibold">No trips yet</h2>
       <p className="mx-auto mt-2 max-w-sm text-body text-foreground-secondary">
-        Record a drive from your phone. When you end it, it shows up here with
-        its score. To look around first, run{" "}
-        <code className="font-mono text-small text-foreground">npm run seed</code>{" "}
-        to load sample trips.
+        Record a drive from your phone and it shows up here with its score. To
+        look around first, load a week of sample trips.
       </p>
-      <Button asChild className="mt-6 h-11 w-full sm:h-9 sm:w-auto sm:px-5">
-        <Link href="/record">Start a trip</Link>
-      </Button>
+      <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row sm:items-start">
+        <Button asChild className="h-11 sm:h-9 sm:px-5">
+          <Link href="/record">Start a trip</Link>
+        </Button>
+        <SeedSampleDataButton
+          onSeeded={onSeeded}
+          confirmFirst={false}
+          label="Load sample trips"
+          buttonClassName="h-11 w-full sm:h-9 sm:w-auto sm:px-5"
+        />
+      </div>
     </section>
   );
 }

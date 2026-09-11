@@ -13,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { SeedSampleDataButton } from "@/components/trips/seed-sample-data-button";
 import { ScoreBadge } from "@/components/trips/trip-score";
 import { useApiResource } from "@/hooks/use-api-resource";
 import { useDriverName } from "@/hooks/use-driver-name";
@@ -68,9 +69,17 @@ export function Leaderboard() {
               Enter a driver name on the Record page before starting a trip,
               and it will be ranked here once the trip ends.
             </p>
-            <Button asChild className="mt-6 h-11 w-full sm:h-9 sm:w-auto sm:px-5">
-              <Link href="/record">Record a trip</Link>
-            </Button>
+            <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row sm:items-start">
+              <Button asChild className="h-11 sm:h-9 sm:px-5">
+                <Link href="/record">Start a trip</Link>
+              </Button>
+              <SeedSampleDataButton
+                onSeeded={reload}
+                confirmFirst={false}
+                label="Load sample trips"
+                buttonClassName="h-11 w-full sm:h-9 sm:w-auto sm:px-5"
+              />
+            </div>
           </section>
         )}
 
