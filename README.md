@@ -5,7 +5,7 @@ When the trip ends, it picks out harsh braking, sharp turns, over-speeding and i
 into a safety score out of 100, and shows the result with a breakdown chart, a driving tip and the
 route on a map. There's also a daily streak and a leaderboard across drivers.
 
-Deployed Link = https://ignitionai-task.vercel.app
+Deployed Link = https://ignitionai-task.vercel.app (render backend might take some time to boot up as it boots down during inactivity so just wait a while and reload the site in 2-3 minutes)
 
 ## Tech stack
 
