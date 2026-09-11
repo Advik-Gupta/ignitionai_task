@@ -47,8 +47,7 @@ export function Leaderboard() {
               <p>
                 {state.error instanceof Error
                   ? state.error.message
-                  : "The server didn't respond."}{" "}
-                Check that the API is running, then try again.
+                  : "The server didn't respond."}
               </p>
               <Button
                 variant="outline"

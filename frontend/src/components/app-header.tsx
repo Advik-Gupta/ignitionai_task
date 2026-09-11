@@ -31,7 +31,7 @@ export function AppHeader() {
                     href={item.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "rounded-md px-2 py-2 text-small transition-colors duration-150 ease-standard sm:px-3",
+                      "rounded-md px-2 py-3 text-small transition-colors duration-150 ease-standard sm:px-3 sm:py-2",
                       active
                         ? "text-foreground"
                         : "text-muted-foreground hover:text-foreground",

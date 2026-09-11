@@ -3,7 +3,7 @@ import { AppHeader } from "@/components/app-header";
 import { TripList } from "@/components/trips/trip-list";
 
 export const metadata: Metadata = {
-  title: "Trips · Driver Scorecard",
+  title: "Trips",
 };
 
 export default function TripsPage() {

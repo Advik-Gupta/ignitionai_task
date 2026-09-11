@@ -9,6 +9,7 @@ import {
   DRIVER_NAME_MAX_LENGTH,
   useDriverName,
 } from "@/hooks/use-driver-name";
+import { useGeolocationPermission } from "@/hooks/use-geolocation-permission";
 import type {
   RecorderPhase,
   StartOptions,
@@ -30,7 +31,10 @@ type StartPanelProps = {
 
 export function StartPanel({ phase, support, onStart, onEnd }: StartPanelProps) {
   const [driverName, setDriverName] = useDriverName();
-  const blocked = !support.secureContext || !support.geolocation;
+  const locationPermission = useGeolocationPermission();
+  const locationBlocked = locationPermission === "denied";
+  const blocked =
+    !support.secureContext || !support.geolocation || locationBlocked;
   const starting = phase.name === "starting";
   const unfinished =
     phase.name === "interrupted" || phase.name === "ending" ? phase : null;
@@ -67,6 +71,34 @@ export function StartPanel({ phase, support, onStart, onEnd }: StartPanelProps) 
             A trip is built from GPS positions, so recording isn&rsquo;t
             possible here. Try a current version of Chrome or Safari on your
             phone.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {support.secureContext && support.geolocation && locationBlocked && (
+        <Alert variant="destructive">
+          <TriangleAlert />
+          <AlertTitle>Location is blocked for this site</AlertTitle>
+          <AlertDescription>
+            <p>
+              A trip is built from GPS, so recording can&rsquo;t start until
+              location is allowed again.
+            </p>
+            <ul className="list-disc pl-4">
+              <li>
+                Chrome: tap the icon to the left of the address, open
+                Permissions, and turn on Location.
+              </li>
+              <li>
+                Safari on iPhone: open Settings, Privacy &amp; Security,
+                Location Services, Safari Websites, and choose While Using the
+                App.
+              </li>
+            </ul>
+            <p>
+              Then come back to this page. Start unlocks as soon as the browser
+              reports the change.
+            </p>
           </AlertDescription>
         </Alert>
       )}
@@ -121,12 +153,22 @@ export function StartPanel({ phase, support, onStart, onEnd }: StartPanelProps) 
         <StatusList>
           <StatusRow
             label="Location"
-            value={support.geolocation ? "Available" : "Not available"}
-            tone={support.geolocation ? "good" : "poor"}
+            value={
+              !support.geolocation
+                ? "Not available"
+                : locationBlocked
+                  ? "Blocked"
+                  : "Available"
+            }
+            tone={support.geolocation && !locationBlocked ? "good" : "poor"}
             detail={
-              support.geolocation
-                ? "Asks for permission when you start"
-                : undefined
+              !support.geolocation
+                ? undefined
+                : locationBlocked
+                  ? "Allow it in your browser settings"
+                  : locationPermission === "granted"
+                    ? "Already allowed"
+                    : "Asks for permission when you start"
             }
           />
           <StatusRow

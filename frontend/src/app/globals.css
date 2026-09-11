@@ -116,6 +116,8 @@
 
   body {
     @apply bg-background font-sans text-body text-foreground antialiased;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 
   :focus-visible {

@@ -36,9 +36,9 @@ npm run setup
 npm run dev
 ```
 
-That runs both apps together: API on :4000, web on :3000. Open http://localhost:3000 and the home
-page will tell you whether it can reach the API and whether Mongo is connected. If it can't, check
-`MONGODB_URI` first - that's usually it.
+That runs both apps together: API on :4000, web on :3000. Open http://localhost:3000. If the API
+isn't reachable the pages say so, and `curl localhost:4000/api/health` tells you whether Mongo is
+connected. If it isn't, check `MONGODB_URI` first - that's usually it.
 
 Each app also runs on its own with `npm run dev` from inside its folder, if you want the logs separate.
 

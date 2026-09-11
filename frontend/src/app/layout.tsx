@@ -16,15 +16,24 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Driver Scorecard",
+  title: {
+    default: "Driver Scorecard",
+    template: "%s · Driver Scorecard",
+  },
   description:
-    "Records a drive with your phone GPS and accelerometer, then scores it on braking, cornering, speed and idling.",
+    "Record a drive on your phone and get a safety score for braking, cornering, speed and idling.",
+  appleWebApp: {
+    capable: true,
+    title: "Scorecard",
+    statusBarStyle: "black",
+  },
 };
 
 export const viewport: Viewport = {
   themeColor: "#121110",
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

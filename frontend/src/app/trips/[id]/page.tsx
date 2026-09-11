@@ -3,7 +3,7 @@ import { AppHeader } from "@/components/app-header";
 import { TripDetailView } from "@/components/trips/trip-detail";
 
 export const metadata: Metadata = {
-  title: "Trip · Driver Scorecard",
+  title: "Trip details",
 };
 
 export default async function TripPage({

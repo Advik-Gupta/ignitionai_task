@@ -3,7 +3,7 @@ import { AppHeader } from "@/components/app-header";
 import { Leaderboard } from "@/components/leaderboard/leaderboard";
 
 export const metadata: Metadata = {
-  title: "Leaderboard · Driver Scorecard",
+  title: "Leaderboard",
 };
 
 export default function LeaderboardPage() {

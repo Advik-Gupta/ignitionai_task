@@ -14,29 +14,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useApiResource } from "@/hooks/use-api-resource";
-import {
-  formatClockTime,
-  formatDistance,
-  formatDuration,
-  formatShortDate,
-  pluralize,
-} from "@/lib/format";
+import { formatClockTime, formatShortDate, pluralize } from "@/lib/format";
 import { listTrips, type Trip } from "@/lib/trip-api";
 import { StreakSummary } from "./streak-summary";
+import { TripRows, distanceLabel, durationLabel } from "./trip-rows";
 import { TripScore } from "./trip-score";
-
-function durationLabel(trip: Trip): string {
-  if (trip.status === "active") return "In progress";
-  return trip.durationSeconds === null
-    ? "-"
-    : formatDuration(trip.durationSeconds);
-}
-
-function distanceLabel(trip: Trip): string {
-  return trip.distanceMeters === null
-    ? "-"
-    : formatDistance(trip.distanceMeters);
-}
 
 function overviewLine(trips: Trip[]): string {
   const scores = trips
@@ -65,7 +47,7 @@ export function TripList() {
           </p>
         </div>
         <Button asChild variant="outline" className="hidden sm:inline-flex">
-          <Link href="/record">Record a trip</Link>
+          <Link href="/record">Start a trip</Link>
         </Button>
       </div>
 
@@ -80,8 +62,7 @@ export function TripList() {
               <p>
                 {state.error instanceof Error
                   ? state.error.message
-                  : "The server didn't respond."}{" "}
-                Check that the API is running, then try again.
+                  : "The server didn't respond."}
               </p>
               <Button
                 variant="outline"
@@ -101,7 +82,7 @@ export function TripList() {
           <div className="flex flex-col gap-6">
             <StreakSummary />
             <TripTable trips={state.data} />
-            <TripRows trips={state.data} />
+            <TripRows trips={state.data} className="md:hidden" />
           </div>
         )}
       </div>
@@ -167,39 +148,6 @@ function TripTable({ trips }: { trips: Trip[] }) {
   );
 }
 
-function TripRows({ trips }: { trips: Trip[] }) {
-  return (
-    <ul className="divide-y rounded-lg border bg-card md:hidden">
-      {trips.map((trip) => (
-        <li key={trip.id}>
-          <Link
-            href={`/trips/${trip.id}`}
-            className="flex min-h-16 items-center justify-between gap-4 px-4 py-3 transition-colors duration-150 ease-standard hover:bg-muted/50"
-          >
-            <div className="min-w-0">
-              <p className="text-body font-medium">
-                {formatShortDate(trip.startTime)},{" "}
-                {formatClockTime(trip.startTime)}
-              </p>
-              <p className="truncate text-caption text-muted-foreground">
-                {[
-                  trip.driverName,
-                  durationLabel(trip),
-                  distanceLabel(trip),
-                  trip.demo ? "Sample" : null,
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
-            </div>
-            <TripScore trip={trip} />
-          </Link>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 function EmptyTrips() {
   return (
     <section className="rounded-lg border bg-card px-5 py-10 text-center sm:px-8">
@@ -211,7 +159,7 @@ function EmptyTrips() {
         to load sample trips.
       </p>
       <Button asChild className="mt-6 h-11 w-full sm:h-9 sm:w-auto sm:px-5">
-        <Link href="/record">Record a trip</Link>
+        <Link href="/record">Start a trip</Link>
       </Button>
     </section>
   );
